@@ -1,44 +1,69 @@
 import React, { useState } from 'react';
-import './Game.css'; // Ensure CSS is correctly applied
+import { useNavigate } from 'react-router-dom';
 
 const Game = () => {
-  const [score, setScore] = useState(0);
-  const [gameOver, setGameOver] = useState(false);
+  const navigate = useNavigate();
+  const isAuthenticated = !!localStorage.getItem('token');
 
-  const startGame = () => {
-    setScore(0);
-    setGameOver(false);
-    // Initialize or reset game logic here
+  const [targetNumber, setTargetNumber] = useState(generateRandomNumber());
+  const [guess, setGuess] = useState('');
+  const [message, setMessage] = useState('');
+
+  function generateRandomNumber() {
+    return Math.floor(Math.random() * 100) + 1; // Random number between 1 and 100
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
   };
 
-  const endGame = () => {
-    setGameOver(true);
-    // Logic to handle game over
-  };
+  const handleGuess = () => {
+    const parsedGuess = parseInt(guess, 10);
+    if (isNaN(parsedGuess)) {
+      setMessage('Please enter a valid number.');
+      return;
+    }
 
-  const handleScore = (points) => {
-    setScore(prevScore => prevScore + points);
+    if (parsedGuess < targetNumber) {
+      setMessage('Too low! Try again.');
+    } else if (parsedGuess > targetNumber) {
+      setMessage('Too high! Try again.');
+    } else {
+      setMessage('Congratulations! You guessed the number!');
+      setTargetNumber(generateRandomNumber()); // Generate a new number after a correct guess
+    }
   };
 
   return (
-    <div className="game-container">
-      <h1>Simple Game</h1>
-      <div>
-        <h2>Score: {score}</h2>
-        {gameOver ? (
+    <div>
+      <h1>Game Page</h1>
+      {isAuthenticated ? (
+        <div>
+          <p>Welcome back! Enjoy the game!</p>
           <div>
-            <h3>Game Over</h3>
-            <button onClick={startGame}>Play Again</button>
+            <h2>Guess the Number Game</h2>
+            <p>Guess a number between 1 and 100:</p>
+            <input
+              type="number"
+              value={guess}
+              onChange={(e) => setGuess(e.target.value)}
+              min="1"
+              max="100"
+            />
+            <button onClick={handleGuess}>Submit Guess</button>
+            <p>{message}</p>
           </div>
-        ) : (
-          <div className="game-buttons">
-            <button onClick={() => handleScore(10)}>Add 10 Points</button>
-            <button onClick={endGame}>End Game</button>
-          </div>
-        )}
-      </div>
+          <button onClick={handleLogout}>Logout</button>
+        </div>
+      ) : (
+        <div>
+          <p>Please log in to access all features of the game.</p>
+          {/* Optionally, provide a link to login or signup */}
+        </div>
+      )}
     </div>
   );
 };
 
-export default Game; // Ensure default export
+export default Game;
