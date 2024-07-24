@@ -1,25 +1,38 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import HomePage from './pages/homepage';
-import AboutPage from './pages/aboutpage';
-import ContactPage from './pages/contactpage';
-import ProfilePage from './pages/profilepage';
-import NotFoundPage from './pages/notfoundpage';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import Signup from './components/Signup';
+import Login from './components/Login';
+import Game from './components/Game'; // Ensure this matches the filename and export
+import './App.css';
 
-function App() {
+const App = () => {
+  const isAuthenticated = () => !!localStorage.getItem('token');
+
   return (
     <Router>
-      <div>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+      <div className="App">
+        <header className="App-header">
+          <nav>
+            <a href="/">Home</a> | 
+            <a href="/signup">Signup</a> | 
+            <a href="/login">Login</a>
+          </nav>
+        </header>
+        <main>
+          <Routes>
+            <Route path="/" element={<h1>Welcome to Our Application!</h1>} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
+            <Route 
+              path="/game" 
+              element={isAuthenticated() ? <Game /> : <Navigate to="/login" />} 
+            />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </main>
       </div>
     </Router>
   );
-}
+};
 
 export default App;
